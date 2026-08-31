@@ -1,0 +1,77 @@
+It is completely normal to get tripped up by the exact sequence of events here. The biggest secret to understanding this code is the order of operations: **We always check the map FIRST, and we only store our current number in the map LAST.**
+
+Think of it like looking for a matching puzzle piece. You look at the pieces already on the table (the map). If you don't find the match, you put your current piece on the table for later.
+
+Let's break down exactly how the computer reads this code line by line using the array `nums = [3, 2, 4]` and a `target = 6`.
+
+### Step 0: Before the loop starts
+
+The computer reads `Map<Integer, Integer> map = new HashMap<>();`.
+
+* An empty memory box is created.
+* **Current Map:** `{}` (empty)
+
+---
+
+### Step 1: The First Loop Iteration (`i = 0`)
+
+* **Current Number:** `nums[0]` is **3**.
+* **Calculate Complement:** `int complement = 6 - 3;` (We need another 3 to reach our target of 6).
+* **The Check:** `if (map.containsKey(3))`
+* We ask the map: *"Do you have a 3 inside you?"*
+* The map is currently `{}`. The answer is **False**.
+
+
+* **The Action:** Because the answer is False, the computer completely **skips** the `return` statement inside the `if` block.
+* **The Store:** The computer moves to the last line of the loop: `map.put(nums[i], i);`.
+* It takes the current number (`3`) as the Key, and the current index (`0`) as the Value, and puts them in the map.
+
+
+* **End of Loop 1 State:**
+* Map contains: `{ 3 : 0 }`
+
+
+
+---
+
+### Step 2: The Second Loop Iteration (`i = 1`)
+
+* **Current Number:** `nums[1]` is **2**.
+* **Calculate Complement:** `int complement = 6 - 2;` (We need a 4 to reach our target of 6).
+* **The Check:** `if (map.containsKey(4))`
+* We ask the map: *"Do you have a 4 inside you?"*
+* The map currently holds `{ 3 : 0 }`. The answer is **False**.
+
+
+* **The Action:** The computer skips the `if` block again.
+* **The Store:** It executes `map.put(nums[i], i);`.
+* It takes the current number (`2`), and the current index (`1`), and saves them.
+
+
+* **End of Loop 2 State:**
+* Map contains: `{ 3 : 0,  2 : 1 }`
+
+
+
+---
+
+### Step 3: The Third Loop Iteration (`i = 2`)
+
+* **Current Number:** `nums[2]` is **4**.
+* **Calculate Complement:** `int complement = 6 - 4;` (We need a 2 to reach our target of 6).
+* **The Check:** `if (map.containsKey(2))`
+* We ask the map: *"Do you have a 2 inside you?"*
+* The map holds `{ 3 : 0,  2 : 1 }`. The answer is **TRUE!**
+
+
+* **The Action:** Because the answer is True, we dive inside the `if` block.
+* **The Return:** `return new int[] { map.get(complement), i };`
+* `map.get(2)` asks the map: *"What index did we save for the number 2?"* The map answers: **1**.
+* `i` is our current index, which is **2**.
+* The function creates a new array `[1, 2]` and gives it back as the final answer. The program stops running here.
+
+
+
+### Why do we store the value at the very end of the loop?
+
+If we stored the current number *before* checking the map, the code would fail. For example, on the very first step when the number is `3`, if we saved it in the map immediately, the map would say *"Yes, I have a 3!"* and return `[0, 0]`. It would use the exact same number twice, which violates the rules of the Two Sum problem. Storing it last guarantees we are only matching with *previous* numbers we have already passed.

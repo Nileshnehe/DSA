@@ -1,0 +1,105 @@
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] ans = new int[n];
+        
+        int[] prefix = new int[n];
+        int[] suffix = new int[n];
+
+        // Base cases: products with nothing next to them start at 1
+        prefix[0] = 1;
+        suffix[n-1] = 1;
+
+        // 1. Calculate all Prefix products (Left to Right)
+        for (int i = 1; i < n; i++) {
+            prefix[i] = prefix[i-1] * nums[i-1];
+        }
+
+        // 2. Calculate all Suffix products (Right to Left)
+        for (int i = n-2; i >= 0; i--) {
+            suffix[i] = suffix[i+1] * nums[i+1];
+        }
+
+        // 3. Combine them into the final answer array
+        for (int i = 0; i < n; i++) {
+            ans[i] = prefix[i] * suffix[i];
+        }
+
+        return ans;
+    }
+}
+
+Let's do a complete, line-by-line dry run of this optimized $O(n)$ space solution! This will show you exactly how the two arrays (prefix and suffix) collect their data and how they combine to give the final result without any nested loops.
+We will use our classic example: nums = [1, 2, 3, 4] (where length n = 4).
+
+
+🧱 Setup Before Any Loops Start
+We allocate memory for our arrays. In Java, new int[4] fills them with 0 by default.
+	• nums = [1, 2, 3, 4]
+	• prefix = [0, 0, 0, 0]
+	• suffix = [0, 0, 0, 0]
+	• ans = [0, 0, 0, 0]
+Then we set up our base cases:
+	• prefix[0] = 1; $\rightarrow$ Because there are no elements to the left of the first element.
+	• suffix[3] = 1; $\rightarrow$ Because there are no elements to the right of the last element.
+State of arrays now:
+	• prefix = [1, 0, 0, 0]
+	• suffix = [0, 0, 0, 1]
+
+
+🔄 Loop 1: Calculating Prefix Products (Left to Right)
+The loop formula is: prefix[i] = prefix[i-1] * nums[i-1];
+This means: "The product of everything before me is (the product of everything before my neighbor) $\times$ (my neighbor's value)."
+	• i = 1:
+		○ prefix[1] = prefix[0] * nums[0]
+		○ prefix[1] = 1 * 1 = 1
+		○ prefix state: [1, 1, 0, 0]
+	• i = 2:
+		○ prefix[2] = prefix[1] * nums[1]
+		○ prefix[2] = 1 * 2 = 2
+		○ prefix state: [1, 1, 2, 0]
+	• i = 3:
+		○ prefix[3] = prefix[2] * nums[2]
+		○ prefix[3] = 2 * 3 = 6
+		○ prefix state: [1, 1, 2, 6]
+End of Loop 1: We have successfully captured all left-side products!
+
+
+🔄 Loop 2: Calculating Suffix Products (Right to Left)
+The loop starts at i = n-2 (which is 4 - 2 = 1) and moves backwards.
+The loop formula is: suffix[i] = suffix[i+1] * nums[i+1];
+This means: "The product of everything after me is (the product of everything after my right neighbor) $\times$ (my right neighbor's value)."
+	• i = 2:
+		○ suffix[2] = suffix[3] * nums[3]
+		○ suffix[2] = 1 * 4 = 4
+		○ suffix state: [0, 0, 4, 1]
+	• i = 1:
+		○ suffix[1] = suffix[2] * nums[2]
+		○ suffix[1] = 4 * 3 = 12
+		○ suffix state: [0, 12, 4, 1]
+	• i = 0:
+		○ suffix[0] = suffix[1] * nums[1]
+		○ suffix[0] = 12 * 2 = 24
+		○ suffix state: [24, 12, 4, 1]
+End of Loop 2: We have successfully captured all right-side products!
+
+
+🔄 Loop 3: Combining into Final Answer (Left $\times$ Right)
+Now we simply multiply the left tracking with the right tracking for each index i: ans[i] = prefix[i] * suffix[i];
+	• i = 0: ans[0] = prefix[0] * suffix[0] $\rightarrow$ 1 * 24 = 24
+	• i = 1: ans[1] = prefix[1] * suffix[1] $\rightarrow$ 1 * 12 = 12
+	• i = 2: ans[2] = prefix[2] * suffix[2] $\rightarrow$ 2 * 4 = 8
+	• i = 3: ans[3] = prefix[3] * suffix[3] $\rightarrow$ 6 * 1 = 6
+Final ans Array returned: [24, 12, 8, 6]
+
+
+💡 Why this is a huge win
+Look at how clean the work was. We never had to recalculate anything from scratch.
+	• Loop 1 did $4$ steps.
+	• Loop 2 did $4$ steps.
+	• Loop 3 did $4$ steps.
+Total operations = $4 + 4 + 4 = 12$ steps.
+Compare that to your brute force which took $4 \times 4 = 16$ steps. If $n = 100,000$, this optimized version takes only $300,000$ operations instead of $10$ billion!
+Does seeing the data change step-by-step clear up how the index arithmetic (i-1 and i+1) works? Let me know if you are ready to see how we compress this even further to save memory!
+
+From <https://www.google.com/search?q=what+is+prefix+and+suffix+in+array&gs_lcrp=EgZjaHJvbWUqDQgAEAAYkQIYgAQYigUyDQgAEAAYkQIYgAQYigUyBwgBEAAYgAQyBwgCEAAYgAQyBwgDEAAYgAQyBggEEEUYOTIMCAUQABgUGIcCGIAEMgcIBhAAGIAEMgcIBxAAGIAEMgcICBAAGIAEMgcICRAAGIAE0gEIOTI5OWowajeoAgCwAgA&sourceid=chrome&ie=UTF-8&fbs=ABfTbFVyMZGZf1hfvX9uKjN_-G8c4u0nXx4bEIpwm1lnNH832a9BVCEiB2iPJNekNderQwLP8msUKsz-6AMxGyueJZ9cK2mNBy2II_6WvkKSZWdegslZITv4C2ITIiG_Zhv1CUVVCFZGgo3Z3gGlpXWh4hmaVbQHT1-5w12lVdW-6Wi-I2FI08mKlJq6aK8xb91xerMNRhHhYeKLDDB9urDhxYqUhm4-VQ&aep=10&ntc=1&sxsrf=APpeQnvPpF8fR7T5-ZglynY5noEoIUF_UQ%3A1788405127288&mstk=AUtExfDz-zl5fT3CC5baLrWgxHBkxtZ2W8KgtG_qg4C25PrXy3lshb-SIbAz5f9VSh2Z36p_WFE4_ZK4xnWUYxFvnulLXd2qGZYr_53QBzdBNt19QMGFPOmG7yUO7nvtSkTY3R8N5v8t705ESH9jDbRDF4ORs9C-D5ssYRILU9pJF-63OfTG8Joa95lpFsgc10f8GiAw1j_wdFBbVQTlsKQclm6i4WfKikAkUnS0P4qu5EbgyBcEyWfoSX4_BZiSlpIMVftVWzf00BJR8W_J40K5NkB1ey9V4j5deO4LH7xzbGJMizIhW3pnj_2SiyJ3l7RTmc3u1DoMM5jSSw&aioh=3&csuir=1&cs=1&atvm=2&mtid=l-WYavbRHuahseMPhqPxuA0&udm=50> 
